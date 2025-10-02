@@ -13,19 +13,46 @@ export class InputHandler {
   }
 
   setupEventListeners() {
-    // Keyboard controls with throttling
+    // Global keyboard controls with throttling
     document.addEventListener('keydown', e => {
-      const now = Date.now();
-      if (now - this.lastKeyTime < GAME_CONSTANTS.KEY_THROTTLE) return;
+      // Always prevent default for game keys
+      const gameKeys = [
+        CONTROLS.PLAYER1_UP,
+        CONTROLS.PLAYER1_DOWN,
+        CONTROLS.PLAYER2_UP,
+        CONTROLS.PLAYER2_DOWN,
+      ];
 
-      this.keys[e.code] = true;
-      this.handleKeyPress(e.code);
-      this.lastKeyTime = now;
+      if (gameKeys.includes(e.code)) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const now = Date.now();
+        if (now - this.lastKeyTime < GAME_CONSTANTS.KEY_THROTTLE) return;
+
+        this.keys[e.code] = true;
+        this.onKeyPress(e.code);
+        this.lastKeyTime = now;
+      }
     });
 
     document.addEventListener('keyup', e => {
-      this.keys[e.code] = false;
-      this.handleKeyRelease(e.code);
+      const gameKeys = [
+        CONTROLS.PLAYER1_UP,
+        CONTROLS.PLAYER1_DOWN,
+        CONTROLS.PLAYER2_UP,
+        CONTROLS.PLAYER2_DOWN,
+      ];
+
+      if (gameKeys.includes(e.code)) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        this.keys[e.code] = false;
+        if (this.onKeyRelease) {
+          this.onKeyRelease(e.code);
+        }
+      }
     });
 
     // Button controls
@@ -36,19 +63,5 @@ export class InputHandler {
     document.getElementById('resetBtn').addEventListener('click', () => {
       this.onReset();
     });
-  }
-
-  handleKeyPress(keyCode) {
-    this.onKeyPress(keyCode);
-  }
-
-  handleKeyRelease(keyCode) {
-    if (this.onKeyRelease) {
-      this.onKeyRelease(keyCode);
-    }
-  }
-
-  isKeyPressed(keyCode) {
-    return !!this.keys[keyCode];
   }
 }
