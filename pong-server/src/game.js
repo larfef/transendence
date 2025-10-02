@@ -134,6 +134,15 @@ class PongGame {
   }
 
   start() {
+    // Only start if game is in WAITING state
+    if (!this.gameState.isWaiting()) {
+      return;
+    }
+    
+    this._startGameLoop();
+  }
+
+  _startGameLoop() {
     if (this.gameInterval) {
       clearInterval(this.gameInterval);
     }
@@ -169,7 +178,7 @@ class PongGame {
 
   resume() {
     if (this.gameState.isPaused()) {
-      this.start();
+      this._startGameLoop();
     }
   }
 
