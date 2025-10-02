@@ -53,7 +53,6 @@ class PongGame {
     if (goalScorer) {
       this.gameState.incrementScore(goalScorer);
       this.resetBall();
-      this.aiController.resetAIWithNewReactionTime();
     }
 
     // Update AI if needed
