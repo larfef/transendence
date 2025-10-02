@@ -10,7 +10,7 @@ export class BallPhysics {
 
   resetBall() {
     this.ball = {
-      x: GAME_CONSTANTS.COURT_WIDTH / 2 - GAME_CONSTANTS.BALL_SIZE / 2,
+      x: GAME_CONSTANTS.COURT_WIDTH / 2, // Center the ball exactly at midpoint
       y: GAME_CONSTANTS.COURT_HEIGHT / 2 - GAME_CONSTANTS.BALL_SIZE / 2,
       vx: GAME_CONSTANTS.BALL_INITIAL_SPEED,
       vy: GAME_CONSTANTS.BALL_INITIAL_SPEED,
