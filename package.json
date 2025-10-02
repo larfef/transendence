@@ -1,0 +1,21 @@
+{
+  "name": "transendence",
+  "version": "1.0.0",
+  "description": "Local development configuration",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/larfef/transendence.git"
+  },
+  "author": "larfef",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/larfef/transendence/issues"
+  },
+  "homepage": "https://github.com/larfef/transendence#readme",
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}
