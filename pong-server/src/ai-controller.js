@@ -36,12 +36,17 @@ export class AIController {
       return true;
     }
 
-    // Reset AI when ball goes back to player side
+    // Only reset AI when ball goes back to player side AND enough time has passed
+    // This prevents immediate reset after ball reset
     if (!ballInAISide && this.aiHasStarted) {
-      this.aiHasStarted = false;
-      this.lastAIUpdate = now;
-      this.aiReactionTime = AI_CONSTANTS.INITIAL_DELAY;
-      return false;
+      // Add a small delay to prevent immediate reset after ball reset
+      if (now - this.lastAIUpdate >= 100) {
+        // 100ms delay
+        this.aiHasStarted = false;
+        this.lastAIUpdate = now;
+        this.aiReactionTime = AI_CONSTANTS.INITIAL_DELAY;
+        return false;
+      }
     }
 
     return false;
@@ -53,21 +58,35 @@ export class AIController {
     const ballX = gameState.ball.x;
     const ballVx = gameState.ball.vx;
 
-    // Simple AI: move towards ball with some prediction
+    // Add occasional "thinking" delays
+    if (Math.random() < 0.1) {
+      // 10% chance to skip movement
+      return;
+    }
+
+    // Less accurate prediction - add more error
     let targetY = ballY;
     if (ballVx > 0) {
-      // Ball moving towards AI
       const ballToPaddleDistance =
         GAME_CONSTANTS.COURT_WIDTH - GAME_CONSTANTS.PADDLE_WIDTH - ballX;
       if (ballToPaddleDistance > 0 && Math.abs(ballVx) > 0) {
         const timeToReachPaddle = ballToPaddleDistance / ballVx;
-        targetY = ballY + gameState.ball.vy * timeToReachPaddle;
+        // Add prediction error
+        const predictionError = (Math.random() - 0.5) * 50; // ±25 pixel error
+        targetY =
+          ballY + gameState.ball.vy * timeToReachPaddle + predictionError;
       }
     }
 
-    // Add some randomness to make AI less perfect
-    const perturbation = (Math.random() - 0.5) * AI_CONSTANTS.PERTURBATION;
+    // Increase randomness significantly
+    const perturbation = (Math.random() - 0.5) * AI_CONSTANTS.PERTURBATION * 2; // Double the perturbation
     targetY += perturbation;
+
+    // Add occasional "overshoot" behavior
+    const overshootChance = 0.15; // 15% chance
+    if (Math.random() < overshootChance) {
+      targetY += (Math.random() - 0.5) * 40; // ±20 pixel overshoot
+    }
 
     // Calculate difference from current paddle position
     const diff = targetY - paddleCenter;
