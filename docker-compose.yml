@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  pong-server:
+    build: ./pong-server
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./src:/usr/src/app"
+    commmand:
+      npm run dev
