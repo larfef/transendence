@@ -1,6 +1,9 @@
 import fastify from 'fastify';
+import routes from './routes';
 
-fastify.register(require('./routes'));
+fastify.register(routes);
+
+game.start();
 
 const start = async () => {
   try {
