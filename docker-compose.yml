@@ -5,5 +5,20 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - './src:/usr/src/app'
-    commmand: npm run dev
+      - './pong-server/src:/usr/src/app/src'
+    command: npm run dev
+    networks:
+      - client-server
+
+  frontend:
+    build: ./frontend
+    ports:
+      - '8080:80'
+    depends_on:
+      - pong-server
+    networks:
+      - client-server
+
+networks:
+  client-server:
+    driver: bridge
