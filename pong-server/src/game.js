@@ -138,7 +138,7 @@ class PongGame {
     if (!this.gameState.isWaiting()) {
       return;
     }
-    
+
     this._startGameLoop();
   }
 
@@ -192,8 +192,11 @@ class PongGame {
     this.gameState.reset();
     this.physics.resetBall();
     this.aiController.resetAI();
-    // Immediately broadcast the state change
-    this._broadcastGameState();
+    // Force immediate broadcast of state change (bypass rate limiting)
+    if (this.onStateChange) {
+      this.onStateChange(this.gameState.getGameState());
+      this.lastBroadcast = Date.now();
+    }
   }
 
   isGameOver() {
