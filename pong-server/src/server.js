@@ -43,7 +43,19 @@ server.register(async function (fastify) {
             game.setGameMode(data.mode);
             break;
           case 'reset':
-            game.setGameMode(game.getGameState().mode);
+            game.resetGame();
+            break;
+          case 'start':
+            game.start();
+            break;
+          case 'stop':
+            game.stop();
+            break;
+          case 'pause':
+            game.pause();
+            break;
+          case 'resume':
+            game.resume();
             break;
         }
       } catch (error) {
@@ -72,8 +84,6 @@ game.onStateChange = gameState => {
     }
   });
 };
-
-game.start();
 
 const start = async () => {
   try {

@@ -68,6 +68,23 @@ button:active {
   background: #da190b;
 }
 
+#startBtn {
+  background: #2196f3;
+}
+
+#startBtn:hover {
+  background: #1976d2;
+}
+
+#playAgainBtn {
+  background: #ff9800;
+  margin-top: 15px;
+}
+
+#playAgainBtn:hover {
+  background: #f57c00;
+}
+
 .game-container {
   display: flex;
   flex-direction: column;
@@ -118,6 +135,35 @@ button:active {
 
 .instructions strong {
   color: #ffd700;
+}
+
+.game-over-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  border: 3px solid #ffd700;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+}
+
+.game-over-display h2 {
+  color: #ffd700;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.game-over-display p {
+  font-size: 1.3rem;
+  margin-bottom: 25px;
+  color: #fff;
+  line-height: 1.5;
 }
 
 /* Responsive design */

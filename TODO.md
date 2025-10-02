@@ -1,3 +1,3 @@
-- start game button
-- end game trigger
+- ✅ start game button
+- ✅ end game trigger
 - reduce ai strengh

@@ -11,6 +11,7 @@ export class PongClient {
     this.interpolationManager = new InterpolationManager();
     this.isAIMode = false;
     this.lastFrameTime = 0;
+    this.currentGameState = GAME_CONSTANTS.GAME_STATES.WAITING;
 
     // Track current input states
     this.currentInputs = {
@@ -36,12 +37,79 @@ export class PongClient {
 
   init() {
     this.websocketManager.connect();
+    this.setupEventListeners();
     this.gameLoop();
+  }
+
+  setupEventListeners() {
+    // Start game button
+    const startBtn = document.getElementById('startBtn');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => this.startGame());
+    }
+
+    // Play again button
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    if (playAgainBtn) {
+      playAgainBtn.addEventListener('click', () => this.playAgain());
+    }
   }
 
   handleGameStateUpdate(gameState) {
     this.interpolationManager.updateServerState(gameState);
     this.renderer.updateScore(gameState.score);
+
+    // Handle game state changes
+    if (gameState.gameState !== this.currentGameState) {
+      this.currentGameState = gameState.gameState;
+      this.handleGameStateChange(gameState);
+    }
+  }
+
+  handleGameStateChange(gameState) {
+    const startBtn = document.getElementById('startBtn');
+    const gameOverDisplay = document.getElementById('gameOverDisplay');
+
+    switch (gameState.gameState) {
+      case GAME_CONSTANTS.GAME_STATES.WAITING:
+        if (startBtn) startBtn.textContent = 'Start Game';
+        if (gameOverDisplay) gameOverDisplay.style.display = 'none';
+        break;
+
+      case GAME_CONSTANTS.GAME_STATES.PLAYING:
+        if (startBtn) startBtn.textContent = 'Stop Game';
+        if (gameOverDisplay) gameOverDisplay.style.display = 'none';
+        break;
+
+      case GAME_CONSTANTS.GAME_STATES.FINISHED:
+        if (startBtn) startBtn.textContent = 'Start Game';
+        this.showGameOver(gameState);
+        break;
+
+      case GAME_CONSTANTS.GAME_STATES.PAUSED:
+        if (startBtn) startBtn.textContent = 'Resume Game';
+        break;
+    }
+  }
+
+  showGameOver(gameState) {
+    const gameOverDisplay = document.getElementById('gameOverDisplay');
+    const gameOverMessage = document.getElementById('gameOverMessage');
+
+    if (gameOverDisplay && gameOverMessage) {
+      const winner = gameState.winner;
+      const winnerName =
+        winner === 'player1'
+          ? 'Player 1'
+          : winner === 'player2'
+            ? this.isAIMode
+              ? 'AI'
+              : 'Player 2'
+            : 'Unknown';
+
+      gameOverMessage.textContent = `${winnerName} wins! Final score: ${gameState.score.player1} - ${gameState.score.player2}`;
+      gameOverDisplay.style.display = 'block';
+    }
   }
 
   handleConnectionChange(connected) {
@@ -131,6 +199,24 @@ export class PongClient {
     this.websocketManager.sendMessage('setMode', { mode: newMode });
     this.isAIMode = !this.isAIMode;
     this.renderer.updateModeButton(this.isAIMode);
+  }
+
+  startGame() {
+    if (this.currentGameState === GAME_CONSTANTS.GAME_STATES.WAITING) {
+      this.websocketManager.sendMessage('start');
+    } else if (this.currentGameState === GAME_CONSTANTS.GAME_STATES.PLAYING) {
+      this.websocketManager.sendMessage('stop');
+    } else if (this.currentGameState === GAME_CONSTANTS.GAME_STATES.PAUSED) {
+      this.websocketManager.sendMessage('resume');
+    }
+  }
+
+  playAgain() {
+    this.websocketManager.sendMessage('reset');
+    const gameOverDisplay = document.getElementById('gameOverDisplay');
+    if (gameOverDisplay) {
+      gameOverDisplay.style.display = 'none';
+    }
   }
 
   resetGame() {

@@ -27,6 +27,9 @@ export class GameStateManager {
         player2: GAME_CONSTANTS.INITIAL_SCORE,
       },
       mode: GAME_CONSTANTS.GAME_MODES.PVP,
+      gameState: GAME_CONSTANTS.GAME_STATES.WAITING,
+      winner: null,
+      gameOverReason: null,
     };
   }
 
@@ -80,5 +83,42 @@ export class GameStateManager {
 
   reset() {
     this.gameState = this._createInitialState();
+  }
+
+  getGameStateStatus() {
+    return this.gameState.gameState;
+  }
+
+  setGameStateStatus(status) {
+    this.gameState.gameState = status;
+  }
+
+  setWinner(winner, reason) {
+    this.gameState.winner = winner;
+    this.gameState.gameOverReason = reason;
+    this.gameState.gameState = GAME_CONSTANTS.GAME_STATES.FINISHED;
+  }
+
+  getWinner() {
+    return {
+      winner: this.gameState.winner,
+      reason: this.gameState.gameOverReason,
+    };
+  }
+
+  isGameOver() {
+    return this.gameState.gameState === GAME_CONSTANTS.GAME_STATES.FINISHED;
+  }
+
+  isPlaying() {
+    return this.gameState.gameState === GAME_CONSTANTS.GAME_STATES.PLAYING;
+  }
+
+  isWaiting() {
+    return this.gameState.gameState === GAME_CONSTANTS.GAME_STATES.WAITING;
+  }
+
+  isPaused() {
+    return this.gameState.gameState === GAME_CONSTANTS.GAME_STATES.PAUSED;
   }
 }

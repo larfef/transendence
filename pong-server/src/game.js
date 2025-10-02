@@ -3,6 +3,7 @@ import { BallPhysics } from './physics.js';
 import { PlayerMovement } from './player-movement.js';
 import { AIController } from './ai-controller.js';
 import { GameStateManager } from './game-state.js';
+import { GameTerminationManager } from './game-termination.js';
 
 class PongGame {
   constructor() {
@@ -11,6 +12,7 @@ class PongGame {
     this.physics = new BallPhysics();
     this.playerMovement = new PlayerMovement();
     this.aiController = new AIController();
+    this.terminationManager = new GameTerminationManager();
 
     // Game loop properties
     this.gameInterval = null;
@@ -35,6 +37,12 @@ class PongGame {
     const gameStateData = this.gameState.getGameState();
     const ball = this.physics.getBall();
 
+    // Don't update if game is not playing
+    if (!this.gameState.isPlaying()) {
+      this._broadcastGameState();
+      return;
+    }
+
     // Update ball physics
     this.physics.updatePosition();
     this.physics.checkWallCollisions();
@@ -52,7 +60,20 @@ class PongGame {
     const goalScorer = this.physics.checkGoalCollisions();
     if (goalScorer) {
       this.gameState.incrementScore(goalScorer);
-      this.resetBall();
+
+      // Check for game termination after scoring
+      const terminationResult = this.terminationManager.checkGameEnd(
+        gameStateData.score
+      );
+      if (terminationResult.isGameOver) {
+        this.gameState.setWinner(
+          terminationResult.winner,
+          terminationResult.reason
+        );
+        this.stop();
+      } else {
+        this.resetBall();
+      }
     }
 
     // Update AI if needed
@@ -115,6 +136,9 @@ class PongGame {
     if (this.gameInterval) {
       clearInterval(this.gameInterval);
     }
+    this.gameState.setGameStateStatus(GAME_CONSTANTS.GAME_STATES.PLAYING);
+    // Immediately broadcast the state change
+    this._broadcastGameState();
     this.gameInterval = setInterval(
       () => this.update(),
       GAME_CONSTANTS.FRAME_INTERVAL
@@ -126,6 +150,47 @@ class PongGame {
       clearInterval(this.gameInterval);
       this.gameInterval = null;
     }
+    // Set game state to waiting when manually stopped
+    this.gameState.setGameStateStatus(GAME_CONSTANTS.GAME_STATES.WAITING);
+    // Immediately broadcast the state change
+    this._broadcastGameState();
+  }
+
+  pause() {
+    if (this.gameInterval) {
+      clearInterval(this.gameInterval);
+      this.gameInterval = null;
+    }
+    this.gameState.setGameStateStatus(GAME_CONSTANTS.GAME_STATES.PAUSED);
+    // Immediately broadcast the state change
+    this._broadcastGameState();
+  }
+
+  resume() {
+    if (this.gameState.isPaused()) {
+      this.start();
+    }
+  }
+
+  resetGame() {
+    this.stop();
+    this.gameState.reset();
+    this.physics.resetBall();
+    this.aiController.resetAI();
+  }
+
+  isGameOver() {
+    return this.gameState.isGameOver();
+  }
+
+  getGameStatus() {
+    return {
+      gameState: this.gameState.getGameStateStatus(),
+      winner: this.gameState.getWinner(),
+      isPlaying: this.gameState.isPlaying(),
+      isWaiting: this.gameState.isWaiting(),
+      isGameOver: this.gameState.isGameOver(),
+    };
   }
 }
 
