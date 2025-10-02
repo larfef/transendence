@@ -174,10 +174,17 @@ class PongGame {
   }
 
   resetGame() {
-    this.pause();
+    // First stop the current game loop if it's running
+    if (this.gameInterval) {
+      clearInterval(this.gameInterval);
+      this.gameInterval = null;
+    }
+    // Then reset everything to initial state
     this.gameState.reset();
     this.physics.resetBall();
     this.aiController.resetAI();
+    // Immediately broadcast the state change
+    this._broadcastGameState();
   }
 
   isGameOver() {
