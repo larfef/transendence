@@ -52,7 +52,7 @@ export const GAME_CONSTANTS = {
   INITIAL_SCORE: 0,
 
   // Game termination
-  WINNING_SCORE: 11, // First to 11 points wins
+  WINNING_SCORE: 5, // First to 11 points wins
   GAME_STATES: {
     WAITING: 'waiting', // Game not started yet
     PLAYING: 'playing', // Game in progress
