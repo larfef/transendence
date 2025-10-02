@@ -102,7 +102,8 @@ class PongGame {
 
   resetBall() {
     const newBall = this.physics.resetBall();
-    newBall.vx *= -1; // Reverse direction
+    // Randomize direction instead of always going to player 1
+    newBall.vx *= Math.random() < 0.5 ? -1 : 1;
     this._syncBallState();
 
     this.aiController.resetAI();
@@ -173,7 +174,7 @@ class PongGame {
   }
 
   resetGame() {
-    this.stop();
+    this.pause();
     this.gameState.reset();
     this.physics.resetBall();
     this.aiController.resetAI();
