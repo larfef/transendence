@@ -11,7 +11,7 @@ export const GAME_CONSTANTS = {
   PADDLE_SPEED: 10,
   KEY_THROTTLE: 8, // Reduced for more responsive controls
   WEBSOCKET_URL: 'ws://localhost:3000/ws',
-  WINNING_SCORE: 11,
+  WINNING_SCORE: 5,
   GAME_STATES: {
     WAITING: 'waiting',
     PLAYING: 'playing',
