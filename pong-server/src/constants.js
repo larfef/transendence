@@ -12,8 +12,8 @@ export const GAME_CONSTANTS = {
   BALL_SIZE: 20,
 
   // Game physics
-  BALL_INITIAL_SPEED: 4,
-  BALL_MIN_SPEED: 4,
+  BALL_INITIAL_SPEED: 6,
+  BALL_MIN_SPEED: 6,
   BALL_MAX_ANGLE: Math.PI / 4, // 45 degrees max
 
   // Player movement speeds
@@ -53,11 +53,13 @@ export const GAME_CONSTANTS = {
 };
 
 export const AI_CONSTANTS = {
-  INITIAL_DELAY: 500, // Delay before AI starts moving (milliseconds)
+  INITIAL_DELAY: 500,
   PERTURBATION: 30,
   SPEED_MULTIPLIER: 0.1,
-  MAX_SPEED: 5,
+  MAX_SPEED: 10,
   MOVEMENT_THRESHOLD: 5,
+  REACTION_TIME_MIN: 50, // Increased from 16ms
+  REACTION_TIME_MAX: 150, // Increased from 48ms
 };
 // Player speed presets for easy configuration
 export const PLAYER_SPEED_PRESETS = {
