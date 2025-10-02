@@ -135,16 +135,27 @@ class PongGame {
     if (this.gameState.mode === GAME_CONSTANTS.GAME_MODES.AI) {
       const now = Date.now();
 
-      // Check if ball is in AI's side of the court
+      // Check if ball is in AI's side of the court or at center
       const ballX = this.gameState.ball.x;
       const courtMidpoint = GAME_CONSTANTS.COURT_WIDTH / 2;
-      const ballInAISide = ballX > courtMidpoint;
+      const ballInAISide = ballX >= courtMidpoint; // Changed from > to >=
+
+      // Debug logging
+      console.log('AI Debug:', {
+        ballX,
+        courtMidpoint,
+        ballInAISide,
+        aiHasStarted: this.aiHasStarted,
+        timeSinceLastUpdate: now - this.lastAIUpdate,
+        aiReactionTime: this.aiReactionTime,
+      });
 
       // If ball is in AI side and initial delay has passed, start AI movement
       if (ballInAISide && !this.aiHasStarted) {
         if (now - this.lastAIUpdate >= this.aiReactionTime) {
           this.aiHasStarted = true;
           this.lastAIUpdate = now;
+          console.log('AI started moving');
         }
       }
 
@@ -158,6 +169,7 @@ class PongGame {
         this.aiHasStarted = false;
         this.lastAIUpdate = now;
         this.aiReactionTime = AI_CONSTANTS.INITIAL_DELAY;
+        console.log('AI reset - ball back to player side');
       }
     }
 
@@ -244,28 +256,35 @@ class PongGame {
       this.gameState.player2.y + GAME_CONSTANTS.PADDLE_HEIGHT / 2;
     const ballY = this.gameState.ball.y + GAME_CONSTANTS.BALL_SIZE / 2;
 
-    // Calculate where the ball will be when it reaches the AI paddle
-    const ballToPaddleDistance =
-      GAME_CONSTANTS.COURT_WIDTH -
-      GAME_CONSTANTS.PADDLE_WIDTH -
-      this.gameState.ball.x;
-    const timeToReachPaddle =
-      ballToPaddleDistance / Math.abs(this.gameState.ball.vx);
-    const predictedBallY =
-      this.gameState.ball.y + this.gameState.ball.vy * timeToReachPaddle;
+    // Simple AI: move towards ball with some prediction
+    const ballX = this.gameState.ball.x;
+    const ballVx = this.gameState.ball.vx;
 
-    // Add perturbation to the predicted collision point
+    // Only predict if ball is moving towards AI
+    let targetY = ballY;
+    if (ballVx > 0) {
+      // Ball moving towards AI
+      const ballToPaddleDistance =
+        GAME_CONSTANTS.COURT_WIDTH - GAME_CONSTANTS.PADDLE_WIDTH - ballX;
+      if (ballToPaddleDistance > 0 && Math.abs(ballVx) > 0) {
+        const timeToReachPaddle = ballToPaddleDistance / ballVx;
+        targetY = ballY + this.gameState.ball.vy * timeToReachPaddle;
+      }
+    }
+
+    // Add some randomness to make AI less perfect
     const perturbation = (Math.random() - 0.5) * AI_CONSTANTS.PERTURBATION;
-    const targetY = predictedBallY + perturbation;
+    targetY += perturbation;
 
     // Calculate difference from current paddle position
     const diff = targetY - paddleCenter;
 
-    // Use same speed as player
+    // Move towards target
     const aiSpeed = Math.min(
       Math.abs(diff) * AI_CONSTANTS.SPEED_MULTIPLIER,
       AI_CONSTANTS.MAX_SPEED
     );
+
     if (Math.abs(diff) > AI_CONSTANTS.MOVEMENT_THRESHOLD) {
       this.gameState.player2.y += diff > 0 ? aiSpeed : -aiSpeed;
       this.gameState.player2.y = Math.max(
@@ -275,6 +294,14 @@ class PongGame {
           this.gameState.player2.y
         )
       );
+
+      console.log('AI moving:', {
+        targetY,
+        paddleCenter,
+        diff,
+        aiSpeed,
+        newY: this.gameState.player2.y,
+      });
     }
   }
 
@@ -289,6 +316,11 @@ class PongGame {
     this.aiHasStarted = false;
     this.lastAIUpdate = Date.now();
     this.aiReactionTime = AI_CONSTANTS.INITIAL_DELAY;
+
+    // If in AI mode, start AI immediately after reset
+    if (this.gameState.mode === GAME_CONSTANTS.GAME_MODES.AI) {
+      this.aiHasStarted = true;
+    }
   }
 
   getGameState() {
