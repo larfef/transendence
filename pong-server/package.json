@@ -1,0 +1,13 @@
+{
+  "name": "pong-server",
+  "version": "1.0.0",
+  "description": "Server for a Pong game",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "fastify": "^4.23.2"
+  }
+}
